@@ -33,20 +33,26 @@ public class BookService {
 
     public void updateBook(Long id, String title, String author, String publisher, Double price) {
         if (Stream.of(title, author, publisher, price).allMatch(Objects::isNull)) {
-            throw new UnsupportedOperationException("There is nothing to update");
+            throw new UnsupportedOperationException("There's nothing to update");
         }
 
-        var book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cannot find book"));
+        var book = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Cannot find book"));
 
-        if (title != null)
+        if (title != null) {
             book.setTitle(title);
-        if (author != null)
+        }
+
+        if (author != null) {
             book.setAuthor(author);
-        if (publisher != null)
-            book.setAuthor(publisher);
-        if (price != null)
+        }
+
+        if (publisher != null) {
+            book.setPublisher(publisher);
+        }
+
+        if (price != null) {
             book.setPrice(price);
+        }
 
         bookRepository.save(book);
     }
