@@ -48,20 +48,18 @@ public class BookstoreService {
     }
 
     public void updateBookstore(Long id, String location, Double priceModifier, Double moneyInCashRegister) {
+        var bookstore = bookstoreRepository.findById(id).orElseThrow(() -> new RuntimeException("Cannot find bookstore"));
+
         if (Stream.of(location, priceModifier, moneyInCashRegister).allMatch(Objects::isNull)) {
             throw new UnsupportedOperationException("There's nothing to update");
         }
 
-        var bookstore = bookstoreRepository.findById(id).orElseThrow(() -> new RuntimeException("Cannot find bookstore"));
-
         if (location != null) {
             bookstore.setLocation(location);
         }
-
         if (priceModifier != null) {
             bookstore.setPriceModifier(priceModifier);
         }
-
         if (moneyInCashRegister != null) {
             bookstore.setMoneyInCashRegister(moneyInCashRegister);
         }
@@ -69,43 +67,41 @@ public class BookstoreService {
         bookstoreRepository.save(bookstore);
     }
 
-    public Map<Bookstore, Double> findPrices(Long id) {
+    public Map<Bookstore,Double> findPrices(Long id) {
         var book = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Cannot find book"));
-        var bookstores = findAll();
+        var bookStores = bookstoreRepository.findAll();
 
         Map<Bookstore, Double> priceMap = new HashMap<>();
-        for (var b:bookstores) {
-            if (b.getInventory().containsKey(book)) {
+        for(var b:bookStores){
+            if (b.getInventory().containsKey(book)){
                 Double currPrice = book.getPrice() * b.getPriceModifier();
                 priceMap.put(b, currPrice);
             }
         }
-
         return priceMap;
     }
 
     public Map<Book, Integer> getStock(Long id) {
-        return bookstoreRepository.findById(id).orElseThrow(() -> new RuntimeException("Cannot find bookstore")).getInventory();
+        var bookstore = bookstoreRepository.findById(id).orElseThrow(() -> new RuntimeException("no such bookstore"));
+        return bookstore.getInventory();
     }
 
     public void changeStock(Long bookstoreId, Long bookId, int amount) {
-        var bookstore = bookstoreRepository.findById(bookstoreId).orElseThrow(() -> new RuntimeException("Cannot find bookstore"));
-        var book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("Cannot find book"));
-
+        var bookstore = bookstoreRepository.findById(bookstoreId).orElseThrow(() -> new RuntimeException("no such bookstore"));
+        var book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("No book found"));
         if (bookstore.getInventory().containsKey(book)) {
             var entry = bookstore.getInventory().get(book);
             if (entry + amount < 0) {
                 throw new UnsupportedOperationException("Invalid amount");
             }
             bookstore.getInventory().replace(book, entry + amount);
-        } else {
-            if (amount < 0) {
+        }
+        else {
+            if (amount < 1) {
                 throw new UnsupportedOperationException("Invalid amount");
             }
             bookstore.getInventory().put(book, amount);
         }
-
         bookstoreRepository.save(bookstore);
-
     }
 }

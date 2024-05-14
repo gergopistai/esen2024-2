@@ -37,37 +37,24 @@ public class BookstoreHandler {
         bookstoreService.deleteBookstore(id);
     }
 
-    @ShellMethod(value = "Update a bookstore", key = "update bookstore")
-    public void updateBook(Long id,
-                           @ShellOption(defaultValue = ShellOption.NULL) String location,
-                           @ShellOption(defaultValue = ShellOption.NULL) Double priceModifier,
-                           @ShellOption(defaultValue = ShellOption.NULL) Double moneyInCashRegister) {
+    @ShellMethod(key = "update bookstore", value = "Updates bookstore")
+    public void updateBookstore(Long id,
+                                @ShellOption(defaultValue = ShellOption.NULL) String location,
+                                @ShellOption(defaultValue = ShellOption.NULL) Double priceModifier,
+                                @ShellOption(defaultValue = ShellOption.NULL) Double moneyInCashRegister) {
         bookstoreService.updateBookstore(id, location, priceModifier, moneyInCashRegister);
     }
 
-    @ShellMethod(value = "Find prices", key="find prices")
-    public String findPrices(Long bookId) {
-        return bookstoreService.findPrices(bookId)
-                .entrySet()
-                .stream()
-                .map(entry -> "Bookstore ID: %d, Location: %s, Price: %f Ft".formatted(
-                        entry.getKey().getId(),
-                        entry.getKey().getLocation(),
-                        entry.getValue()))
-                .collect(Collectors.joining(System.lineSeparator()));
-    }
-
-    @ShellMethod(value = "Get stock", key="get stock")
+    @ShellMethod(key = "get stock", value = "get stock")
     public String getStock(Long id) {
-        return bookstoreService.getStock(id)
-                .entrySet()
+        return bookstoreService.getStock(id).entrySet()
                 .stream()
-                .map(entry -> "%d. %s - %s\t| Copies: %d".formatted(
+                .map(entry -> "Book ID: %s, Author: %s, Title: %s - Copies: %s".formatted(
                         entry.getKey().getId(),
                         entry.getKey().getAuthor(),
                         entry.getKey().getTitle(),
-                        entry.getValue()))
-                .collect(Collectors.joining(System.lineSeparator()));
+                        entry.getValue()
+                )).collect(Collectors.joining(System.lineSeparator()));
     }
 
     @ShellMethod(value = "Add stock", key = "add stock")
